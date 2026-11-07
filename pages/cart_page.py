@@ -26,7 +26,7 @@ class CartPage(BasePage):
 
     def quitar_producto(self, nombre):
         logger.info("Quitando del carrito: %s", nombre)
-        cantidad_inicial = self.contar_elementos(self.ITEMS)
+        cantidad_inicial = len(self.obtener_elementos(self.ITEMS))
         self.hacer_clic(self.locator_boton_producto(nombre, "cart_item"))
         self.esperar_cantidad_elementos(self.ITEMS, cantidad_inicial - 1)
 

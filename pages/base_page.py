@@ -90,9 +90,6 @@ class BasePage:
             message=f"No se encontraron elementos {locator}",
         )
 
-    def contar_elementos(self, locator):
-        return len(self.driver.find_elements(*locator))
-
     # ---------- Productos (comunes al catálogo y al carrito) ----------
     @staticmethod
     def locator_nombre_producto(nombre):
