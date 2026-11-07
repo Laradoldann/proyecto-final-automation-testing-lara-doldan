@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# Pytest
+.pytest_cache/
+
+# Entornos virtuales
+venv/
+.venv/
+
+# Editores
+.vscode/
+.idea/
+
+# Generados en cada ejecución (el reporte HTML sí se puede versionar como evidencia)
+reports/screenshots/
+reports/*.log
