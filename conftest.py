@@ -1,10 +1,4 @@
-"""Configuración compartida de pytest para todo el proyecto.
-
-Acá viven:
-- la opción --headless y el fixture del navegador,
-- el registro en el log del inicio y resultado de cada test,
-- la captura de pantalla automática cuando algo falla (en el test o en su preparación).
-"""
+"""Configuración compartida de pytest: navegador, log de cada test y capturas de pantalla en fallos."""
 import logging
 
 import pytest
@@ -17,14 +11,14 @@ from utils.screenshots import guardar_captura
 
 logger = logging.getLogger(__name__)
 
-# Clave con la que el fixture 'driver' deja el navegador a mano del hook de capturas
+# Donde el fixture driver deja el navegador para que el hook de capturas lo encuentre
 CLAVE_NAVEGADOR = pytest.StashKey()
 
 
 def pytest_addoption(parser):
     parser.addoption(
         "--headless", action="store_true", default=False,
-        help="Ejecuta Chrome sin abrir la ventana (útil en CI o para ir más rápido)",
+        help="Ejecuta Chrome sin abrir la ventana",
     )
 
 
@@ -34,15 +28,12 @@ def pytest_html_report_title(report):
 
 @pytest.fixture
 def driver(request):
-    """Abre un Chrome nuevo para CADA test y lo cierra al terminar.
-
-    Con un navegador nuevo por test, ningún test depende del estado de otro.
-    """
+    """Un Chrome nuevo por test, así ningún test depende de otro."""
     opciones = Options()
     opciones.add_argument("--window-size=1920,1080")
     if request.config.getoption("--headless"):
         opciones.add_argument("--headless=new")
-    # Evita los avisos de Chrome sobre guardar o cambiar contraseñas
+    # Evita los avisos de Chrome sobre contraseñas
     opciones.add_experimental_option("prefs", {
         "credentials_enable_service": False,
         "profile.password_manager_enabled": False,
@@ -50,7 +41,6 @@ def driver(request):
     })
     opciones.add_experimental_option("excludeSwitches", ["enable-automation"])
 
-    # Selenium Manager (incluido en Selenium 4) descarga el chromedriver que haga falta
     navegador = webdriver.Chrome(options=opciones)
     request.node.stash[CLAVE_NAVEGADOR] = navegador
     logger.info("Navegador iniciado")
@@ -67,11 +57,7 @@ def registrar_inicio_del_test(request):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """Registra el resultado de cada test y, si falla, guarda y adjunta una captura.
-
-    Se revisan las fases 'setup' y 'call': así también queda captura cuando falla
-    la preparación del test (por ejemplo, un login que no funciona dentro de un fixture).
-    """
+    """Registra el resultado y, si falla el test o su preparación (setup), guarda y adjunta una captura."""
     resultado = yield
     reporte = resultado.get_result()
 
@@ -86,10 +72,10 @@ def pytest_runtest_makereport(item, call):
 
     navegador = item.stash.get(CLAVE_NAVEGADOR, None)
     if navegador is None:
-        return  # test de API o fallo antes de abrir el navegador: no hay nada que capturar
+        return  # test de API o fallo antes de abrir el navegador
 
     try:
-        _, imagen_base64 = guardar_captura(navegador, item.name, reporte.when)
+        imagen_base64 = guardar_captura(navegador, item.name, reporte.when)
     except (WebDriverException, OSError):
         logger.exception("No se pudo guardar la captura de %s", item.nodeid)
         return

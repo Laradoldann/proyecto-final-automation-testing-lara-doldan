@@ -1,4 +1,4 @@
-"""Lectura de los datos de prueba que viven en la carpeta data/ (CSV y JSON)."""
+"""Lectura de los datos de prueba de la carpeta data/ (CSV y JSON)."""
 import csv
 import json
 
@@ -29,6 +29,6 @@ def leer_json(nombre_archivo):
         raise ValueError(f"El archivo {ruta.name} no es un JSON válido: {error}") from error
 
 
-def como_parametros(casos, clave_id="caso"):
-    """Convierte una lista de casos en parámetros de pytest, usando la clave 'caso' como nombre."""
-    return [pytest.param(caso, id=caso[clave_id]) for caso in casos]
+def como_parametros(casos):
+    """Convierte cada caso en un parámetro de pytest que se llama como su campo 'caso'."""
+    return [pytest.param(caso, id=caso["caso"]) for caso in casos]

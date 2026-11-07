@@ -6,7 +6,7 @@ from api.jsonplaceholder_client import JsonPlaceholderClient
 
 @pytest.fixture
 def cliente_api():
-    """Cliente nuevo para cada test, así ninguno depende de otro."""
+    """Un cliente nuevo por test."""
     cliente = JsonPlaceholderClient()
     yield cliente
     cliente.cerrar()

@@ -1,8 +1,4 @@
-"""Configuración central del framework.
-
-Los valores por defecto sirven tal cual; si hace falta cambiarlos (por ejemplo
-en CI) se pueden sobreescribir con variables de entorno.
-"""
+"""Configuración central. Cada valor se puede cambiar con una variable de entorno."""
 import os
 from pathlib import Path
 
@@ -16,11 +12,11 @@ CARPETA_CAPTURAS = CARPETA_REPORTES / "screenshots"
 URL_BASE = os.getenv("BASE_URL", "https://www.saucedemo.com/")
 TIMEOUT_UI = int(os.getenv("UI_TIMEOUT", "10"))  # segundos de las esperas explícitas
 
-# Credenciales públicas que SauceDemo muestra en su propia página de login
+# Usuario de demo que SauceDemo publica en su página de login
 USUARIO_VALIDO = "standard_user"
 PASSWORD_VALIDO = "secret_sauce"
 
-# Producto que usan los tests que necesitan "algo" en el carrito
+# Producto que usan los tests que necesitan algo en el carrito
 PRODUCTO_DE_PRUEBA = "Sauce Labs Backpack"
 
 # ---------- API: JSONPlaceholder ----------
