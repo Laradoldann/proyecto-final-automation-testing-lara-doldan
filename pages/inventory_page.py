@@ -4,14 +4,10 @@ import logging
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
-from config.settings import TIMEOUT_UI
+from config.settings import URL_BASE
 from pages.base_page import BasePage
 
 logger = logging.getLogger(__name__)
-
-
-def _xpath_nombre_producto(nombre):
-    return f"//div[contains(@class,'inventory_item_name') and normalize-space()='{nombre}']"
 
 
 class InventoryPage(BasePage):
@@ -26,32 +22,26 @@ class InventoryPage(BasePage):
     MENU = (By.ID, "react-burger-menu-btn")
     ENLACE_LOGOUT = (By.ID, "logout_sidebar_link")
 
-    # Cada botón (Add to cart / Remove) se busca a partir del nombre del producto
-    @staticmethod
-    def _boton_de_producto(nombre):
-        return (
-            By.XPATH,
-            _xpath_nombre_producto(nombre)
-            + "/ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' inventory_item ')]//button",
-        )
+    def abrir_directamente(self):
+        """Abre la URL del catálogo sin pasar por el login."""
+        self.abrir(URL_BASE.rstrip("/") + self.FRAGMENTO_URL)
 
-    # ---------- Estado de la página ----------
     def esta_cargada(self):
-        return self.esta_en(self.FRAGMENTO_URL) and self.esta_visible(self.TITULO, timeout=TIMEOUT_UI)
+        return self.esta_en(self.FRAGMENTO_URL) and self.esta_visible(self.TITULO)
 
     def obtener_titulo(self):
         return self.obtener_texto(self.TITULO)
 
+    # ---------- Productos ----------
     def obtener_nombres_productos(self):
         return [elemento.text for elemento in self.obtener_elementos(self.NOMBRES)]
-
-    def obtener_precios_productos(self):
-        return [self.extraer_monto(elemento.text) for elemento in self.obtener_elementos(self.PRECIOS)]
 
     def obtener_textos_de_precios(self):
         return [elemento.text for elemento in self.obtener_elementos(self.PRECIOS)]
 
-    # ---------- Acciones sobre productos ----------
+    def obtener_precios_productos(self):
+        return [self.extraer_monto(texto) for texto in self.obtener_textos_de_precios()]
+
     def ordenar_por(self, valor):
         """Valores posibles: az, za, lohi, hilo."""
         logger.info("Ordenando productos por '%s'", valor)
@@ -59,20 +49,16 @@ class InventoryPage(BasePage):
 
     def agregar_producto(self, nombre):
         logger.info("Agregando al carrito: %s", nombre)
-        self.hacer_clic(self._boton_de_producto(nombre))
-
-    def quitar_producto(self, nombre):
-        logger.info("Quitando del carrito: %s", nombre)
-        self.hacer_clic(self._boton_de_producto(nombre))
+        self.hacer_clic(self.locator_boton_producto(nombre, "inventory_item"))
 
     def obtener_texto_boton(self, nombre):
-        return self.obtener_texto(self._boton_de_producto(nombre))
+        return self.obtener_texto(self.locator_boton_producto(nombre, "inventory_item"))
 
     def abrir_detalle_producto(self, nombre):
         logger.info("Abriendo el detalle de: %s", nombre)
-        self.hacer_clic((By.XPATH, _xpath_nombre_producto(nombre)))
+        self.hacer_clic(self.locator_nombre_producto(nombre))
 
-    # ---------- Carrito ----------
+    # ---------- Carrito y menú ----------
     def obtener_cantidad_carrito(self):
         """Número del globo rojo del carrito (0 si no se muestra)."""
         contador = self.driver.find_elements(*self.CONTADOR_CARRITO)
@@ -87,7 +73,6 @@ class InventoryPage(BasePage):
     def ir_al_carrito(self):
         self.hacer_clic(self.ICONO_CARRITO)
 
-    # ---------- Menú ----------
     def cerrar_sesion(self):
         logger.info("Cerrando sesión")
         self.hacer_clic(self.MENU)

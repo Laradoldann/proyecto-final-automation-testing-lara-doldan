@@ -22,37 +22,37 @@ CRITERIOS_DE_ORDEN = [
 ]
 
 
-def test_catalogo_muestra_los_productos(inventory_page):
-    nombres = inventory_page.obtener_nombres_productos()
-    precios = inventory_page.obtener_textos_de_precios()
+def test_catalogo_muestra_los_productos(pagina_inventario):
+    nombres = pagina_inventario.obtener_nombres_productos()
+    precios = pagina_inventario.obtener_textos_de_precios()
 
-    assert inventory_page.obtener_titulo() == "Products"
+    assert pagina_inventario.obtener_titulo() == "Products"
     assert len(nombres) == CANTIDAD_DE_PRODUCTOS, f"Productos encontrados: {nombres}"
     assert all(nombre.strip() for nombre in nombres), "Hay productos sin nombre"
     assert all(precio.startswith("$") for precio in precios), f"Precios con formato inesperado: {precios}"
 
 
 @pytest.mark.parametrize("valor_orden, atributo, descendente", CRITERIOS_DE_ORDEN)
-def test_ordenar_productos(inventory_page, valor_orden, atributo, descendente):
-    inventory_page.ordenar_por(valor_orden)
+def test_ordenar_productos(pagina_inventario, valor_orden, atributo, descendente):
+    pagina_inventario.ordenar_por(valor_orden)
 
     if atributo == "nombre":
-        valores = inventory_page.obtener_nombres_productos()
+        valores = pagina_inventario.obtener_nombres_productos()
     else:
-        valores = inventory_page.obtener_precios_productos()
+        valores = pagina_inventario.obtener_precios_productos()
     assert valores == sorted(valores, reverse=descendente), f"Orden incorrecto: {valores}"
 
 
-def test_abrir_detalle_de_un_producto_y_volver(inventory_page, driver):
+def test_abrir_detalle_de_un_producto_y_volver(pagina_inventario, driver):
     precios_por_nombre = dict(zip(
-        inventory_page.obtener_nombres_productos(),
-        inventory_page.obtener_textos_de_precios(),
+        pagina_inventario.obtener_nombres_productos(),
+        pagina_inventario.obtener_textos_de_precios(),
     ))
 
-    inventory_page.abrir_detalle_producto(PRODUCTO)
+    pagina_inventario.abrir_detalle_producto(PRODUCTO)
 
     detalle = ProductDetailPage(driver)
-    assert detalle.esta_cargada(), f"No se abrió el detalle. URL actual: {driver.current_url}"
+    assert detalle.esta_cargada(), f"No se abrió el detalle. URL actual: {detalle.url_actual}"
     assert detalle.obtener_nombre() == PRODUCTO
     assert detalle.obtener_precio() == precios_por_nombre[PRODUCTO]
 
