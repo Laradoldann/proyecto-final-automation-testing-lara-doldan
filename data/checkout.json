@@ -1,0 +1,39 @@
+{
+  "compra_exitosa": [
+    {
+      "caso": "cliente_con_codigo_numerico",
+      "nombre": "Ana",
+      "apellido": "Perez",
+      "codigo_postal": "1425"
+    },
+    {
+      "caso": "cliente_con_codigo_alfanumerico",
+      "nombre": "Juan Carlos",
+      "apellido": "Gomez Ruiz",
+      "codigo_postal": "C1425ABC"
+    }
+  ],
+  "datos_invalidos": [
+    {
+      "caso": "sin_nombre",
+      "nombre": "",
+      "apellido": "Perez",
+      "codigo_postal": "1425",
+      "mensaje_error": "First Name is required"
+    },
+    {
+      "caso": "sin_apellido",
+      "nombre": "Ana",
+      "apellido": "",
+      "codigo_postal": "1425",
+      "mensaje_error": "Last Name is required"
+    },
+    {
+      "caso": "sin_codigo_postal",
+      "nombre": "Ana",
+      "apellido": "Perez",
+      "codigo_postal": "",
+      "mensaje_error": "Postal Code is required"
+    }
+  ]
+}

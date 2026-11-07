@@ -1,0 +1,28 @@
+{
+  "posts_nuevos": [
+    {
+      "caso": "post_basico",
+      "datos": {
+        "userId": 1,
+        "title": "Mi primer post de prueba",
+        "body": "Contenido de un post creado desde las pruebas automatizadas."
+      }
+    },
+    {
+      "caso": "post_de_otro_usuario",
+      "datos": {
+        "userId": 7,
+        "title": "Post de otro usuario",
+        "body": "Verifica que el userId enviado se devuelva sin cambios."
+      }
+    },
+    {
+      "caso": "post_con_caracteres_especiales",
+      "datos": {
+        "userId": 3,
+        "title": "Título con acentos y símbolos: ñ, á, ü, ¿?, #",
+        "body": "Línea uno\nLínea dos con \"comillas\" y acentos: canción, pingüino."
+      }
+    }
+  ]
+}
