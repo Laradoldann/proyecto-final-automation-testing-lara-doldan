@@ -1,8 +1,0 @@
-caso,usuario,password,resultado,mensaje_error
-standard_user,standard_user,secret_sauce,exito,
-problem_user,problem_user,secret_sauce,exito,
-usuario_bloqueado,locked_out_user,secret_sauce,error,this user has been locked out
-password_incorrecta,standard_user,clave_incorrecta,error,do not match any user in this service
-usuario_inexistente,usuario_que_no_existe,secret_sauce,error,do not match any user in this service
-usuario_vacio,,secret_sauce,error,Username is required
-password_vacia,standard_user,,error,Password is required
