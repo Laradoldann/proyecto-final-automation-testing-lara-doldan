@@ -21,19 +21,19 @@ MENSAJE_DE_COMPRA_EXITOSA = "Thank you for your order!"
 
 
 @pytest.mark.parametrize("cliente", COMPRAS_EXITOSAS)
-def test_compra_completa(checkout_informacion, driver, cliente):
-    checkout_informacion.completar_formulario(
+def test_compra_completa(pagina_checkout, driver, cliente):
+    pagina_checkout.completar_formulario(
         cliente["nombre"], cliente["apellido"], cliente["codigo_postal"]
     )
-    checkout_informacion.continuar()
+    pagina_checkout.continuar()
 
     resumen = CheckoutResumenPage(driver)
-    assert resumen.esta_cargada(), f"No se llegó al resumen. URL actual: {driver.current_url}"
+    assert resumen.esta_cargada(), f"No se llegó al resumen. URL actual: {resumen.url_actual}"
     assert resumen.obtener_nombres_productos() == [PRODUCTO_DE_PRUEBA]
     resumen.finalizar_compra()
 
     confirmacion = CheckoutCompletoPage(driver)
-    assert confirmacion.esta_cargada(), f"No se llegó a la confirmación. URL actual: {driver.current_url}"
+    assert confirmacion.esta_cargada(), f"No se llegó a la confirmación. URL actual: {confirmacion.url_actual}"
     assert confirmacion.obtener_mensaje_confirmacion() == MENSAJE_DE_COMPRA_EXITOSA
 
     confirmacion.volver_a_productos()
@@ -43,22 +43,22 @@ def test_compra_completa(checkout_informacion, driver, cliente):
 
 
 @pytest.mark.parametrize("cliente", DATOS_INVALIDOS)
-def test_checkout_con_datos_incompletos(checkout_informacion, driver, cliente):
-    checkout_informacion.completar_formulario(
+def test_checkout_con_datos_incompletos(pagina_checkout, cliente):
+    pagina_checkout.completar_formulario(
         cliente["nombre"], cliente["apellido"], cliente["codigo_postal"]
     )
-    checkout_informacion.continuar()
+    pagina_checkout.continuar()
 
-    mensaje = checkout_informacion.obtener_mensaje_error()
+    mensaje = pagina_checkout.obtener_mensaje_error()
     assert cliente["mensaje_error"] in mensaje, f"Mensaje inesperado: '{mensaje}'"
-    assert "/checkout-step-one.html" in driver.current_url, "No debería avanzar al resumen"
+    assert "/checkout-step-one.html" in pagina_checkout.url_actual, "No debería avanzar al resumen"
 
 
-def test_resumen_calcula_bien_subtotal_y_total(inventory_page, driver):
+def test_resumen_calcula_bien_subtotal_y_total(pagina_inventario, driver):
     productos = ["Sauce Labs Backpack", "Sauce Labs Bolt T-Shirt"]
     for producto in productos:
-        inventory_page.agregar_producto(producto)
-    inventory_page.ir_al_carrito()
+        pagina_inventario.agregar_producto(producto)
+    pagina_inventario.ir_al_carrito()
     CartPage(driver).iniciar_checkout()
 
     informacion = CheckoutInformacionPage(driver)
@@ -74,9 +74,9 @@ def test_resumen_calcula_bien_subtotal_y_total(inventory_page, driver):
     assert resumen.obtener_total() == pytest.approx(subtotal + resumen.obtener_impuesto())
 
 
-def test_cancelar_checkout_vuelve_al_carrito(checkout_informacion, driver):
-    checkout_informacion.cancelar()
+def test_cancelar_checkout_vuelve_al_carrito(pagina_checkout, driver):
+    pagina_checkout.cancelar()
 
     carrito = CartPage(driver)
-    assert carrito.esta_cargada(), f"No se volvió al carrito. URL actual: {driver.current_url}"
+    assert carrito.esta_cargada(), f"No se volvió al carrito. URL actual: {carrito.url_actual}"
     assert carrito.obtener_nombres_productos() == [PRODUCTO_DE_PRUEBA]

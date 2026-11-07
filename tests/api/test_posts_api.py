@@ -1,8 +1,6 @@
-"""Pruebas de los endpoints /posts de JSONPlaceholder: GET, POST y DELETE.
+"""Endpoints /posts de JSONPlaceholder: GET, POST y DELETE.
 
-JSONPlaceholder simula las escrituras: responde como si el cambio se hubiera
-hecho pero no lo guarda. Por eso los tests de POST y DELETE validan la
-respuesta, no el estado posterior del servidor.
+La API simula las escrituras sin guardarlas, así que POST y DELETE se validan por su respuesta.
 """
 import pytest
 

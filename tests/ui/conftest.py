@@ -9,7 +9,7 @@ from pages.login_page import LoginPage
 
 
 @pytest.fixture
-def login_page(driver):
+def pagina_login(driver):
     """Página de login ya abierta."""
     pagina = LoginPage(driver)
     pagina.abrir_pagina()
@@ -17,19 +17,19 @@ def login_page(driver):
 
 
 @pytest.fixture
-def inventory_page(login_page, driver):
+def pagina_inventario(pagina_login, driver):
     """Sesión iniciada con el usuario válido y el catálogo de productos cargado."""
-    login_page.iniciar_sesion(USUARIO_VALIDO, PASSWORD_VALIDO)
+    pagina_login.iniciar_sesion(USUARIO_VALIDO, PASSWORD_VALIDO)
     inventario = InventoryPage(driver)
     assert inventario.esta_cargada(), "No se pudo iniciar sesión para preparar el test"
     return inventario
 
 
 @pytest.fixture
-def checkout_informacion(inventory_page, driver):
+def pagina_checkout(pagina_inventario, driver):
     """Un producto en el carrito y el formulario de datos del checkout abierto."""
-    inventory_page.agregar_producto(PRODUCTO_DE_PRUEBA)
-    inventory_page.ir_al_carrito()
+    pagina_inventario.agregar_producto(PRODUCTO_DE_PRUEBA)
+    pagina_inventario.ir_al_carrito()
     CartPage(driver).iniciar_checkout()
     pagina = CheckoutInformacionPage(driver)
     assert pagina.esta_cargada(), "No se pudo llegar al checkout para preparar el test"

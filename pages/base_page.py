@@ -1,12 +1,9 @@
-"""Clase base de todas las páginas.
-
-Concentra las acciones comunes (abrir, hacer clic, escribir, leer texto) con
-esperas explícitas, así cada página solo se ocupa de sus propios elementos.
-"""
+"""Clase base de todas las páginas: acciones comunes con esperas explícitas."""
 import logging
 import re
 
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -19,6 +16,10 @@ class BasePage:
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(driver, TIMEOUT_UI)
+
+    @property
+    def url_actual(self):
+        return self.driver.current_url
 
     # ---------- Navegación ----------
     def abrir(self, url):
@@ -37,7 +38,7 @@ class BasePage:
             self.esperar_url_contiene(fragmento)
             return True
         except TimeoutException:
-            logger.warning("No se llegó a '%s'. URL actual: %s", fragmento, self.driver.current_url)
+            logger.warning("No se llegó a '%s'. URL actual: %s", fragmento, self.url_actual)
             return False
 
     # ---------- Esperas ----------
@@ -59,8 +60,8 @@ class BasePage:
             message=f"No se llegó a {cantidad} elemento(s) de {locator}",
         )
 
-    def esta_visible(self, locator, timeout=2):
-        """True si el elemento se ve en pantalla dentro del timeout (sin romper el test)."""
+    def esta_visible(self, locator, timeout=TIMEOUT_UI):
+        """True si el elemento se ve en pantalla dentro del timeout."""
         try:
             WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(locator))
             return True
@@ -73,7 +74,7 @@ class BasePage:
         self.esperar_clickeable(locator).click()
 
     def escribir(self, locator, texto):
-        # Solo se registra el elemento, no el texto, para no dejar contraseñas en el log
+        # No se registra el texto para no dejar contraseñas en el log
         logger.info("Escribiendo en %s", locator)
         campo = self.esperar_visible(locator)
         campo.clear()
@@ -91,6 +92,20 @@ class BasePage:
 
     def contar_elementos(self, locator):
         return len(self.driver.find_elements(*locator))
+
+    # ---------- Productos (comunes al catálogo y al carrito) ----------
+    @staticmethod
+    def locator_nombre_producto(nombre):
+        return (By.XPATH, f"//div[contains(@class,'inventory_item_name') and normalize-space()='{nombre}']")
+
+    @classmethod
+    def locator_boton_producto(cls, nombre, contenedor):
+        """Botón (Add to cart / Remove) del producto dentro de su contenedor: 'inventory_item' o 'cart_item'."""
+        xpath_nombre = cls.locator_nombre_producto(nombre)[1]
+        return (
+            By.XPATH,
+            f"{xpath_nombre}/ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' {contenedor} ')]//button",
+        )
 
     @staticmethod
     def extraer_monto(texto):

@@ -36,7 +36,6 @@ class JsonPlaceholderClient:
             raise
         milisegundos = respuesta.elapsed.total_seconds() * 1000
         logger.info("Respuesta %s en %.0f ms", respuesta.status_code, milisegundos)
-        logger.debug("Cuerpo de la respuesta: %s", respuesta.text[:500])
         return respuesta
 
     # ---------- Posts ----------
